@@ -2,9 +2,11 @@ package AST;
 
 
 
+import AST.JDT.CustomVisitor;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
 
 import java.io.*;
 
@@ -14,6 +16,15 @@ public class ASTGen {
         char[] javaCode = getSourceCode(filePath);
         CompilationUnit compilationUnit = getCompilationUnit(javaCode);
         // TODO: visitor
+        compilationUnit.accept(new CustomVisitor(compilationUnit));
+        NaiveASTFlattener x = new NaiveASTFlattener();
+
+        x.visit(compilationUnit);
+//        String a = x.getResult();
+//        String b = x.toString();
+//        System.out.println(a);
+
+
     }
 
     private static CompilationUnit getCompilationUnit(char[] javaCode) {
