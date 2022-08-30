@@ -15,11 +15,16 @@ public class ASTGen {
         String filePath = "./src/main/resources/demo.java";
         char[] javaCode = getSourceCode(filePath);
         CompilationUnit compilationUnit = getCompilationUnit(javaCode);
-        // TODO: visitor
-        compilationUnit.accept(new CustomVisitor(compilationUnit));
-        NaiveASTFlattener x = new NaiveASTFlattener();
+        CustomVisitor cv = new CustomVisitor(compilationUnit);
 
-        x.visit(compilationUnit);
+        System.out.println(cv.toString());
+        System.out.println("############");
+        compilationUnit.accept(cv);
+
+        compilationUnit.accept(new CustomVisitor(compilationUnit));
+//        NaiveASTFlattener x = new NaiveASTFlattener();
+//
+//        x.visit(compilationUnit);
 //        String a = x.getResult();
 //        String b = x.toString();
 //        System.out.println(a);

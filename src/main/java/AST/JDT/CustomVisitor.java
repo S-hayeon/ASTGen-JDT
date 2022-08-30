@@ -10,6 +10,9 @@ public class CustomVisitor extends ASTVisitor{
     private final CompilationUnit compliationUnit;
     private boolean visitDocTags;
 
+    public  Set<String> getHashMap(){
+        return this.names;
+    }
     public CustomVisitor(CompilationUnit cu) {
         this.compliationUnit = cu;
         names = new HashSet<>();
@@ -54,6 +57,7 @@ public class CustomVisitor extends ASTVisitor{
 
     public boolean visit(IfStatement node) {
         System.out.println("---------------");
+
         System.out.println(node.getExpression());
         System.out.println(node.getExpression().getClass().getName());
         System.out.println("---------------");
