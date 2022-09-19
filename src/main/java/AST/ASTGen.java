@@ -3,28 +3,15 @@ package AST;
 
 
 import AST.JDT.ASTStream;
-import AST.JDT.CustomVisitor;
-import AST.JDT.Serializer.ASTNodeSerializer;
+import AST.JDT.Serializer.CompilationUnitSerializer;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.eclipse.jdt.core.dom.*;
 
 //
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jface.text.Document;
 
 import java.io.*;
 import java.util.List;
@@ -32,40 +19,44 @@ import java.util.stream.Collectors;
 
 public class ASTGen {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         String filePath = "./src/main/resources/demo.java";
         char[] javaCode = getSourceCode(filePath);
         CompilationUnit compilationUnit = getCompilationUnit(javaCode);
 
         List<ASTNode> actual = ASTStream.stream(compilationUnit.getRoot())
         .collect(Collectors.toList());
+        ASTNode ast = compilationUnit.getRoot();
+        List<StructuralPropertyDescriptor> descriptorList = ast.structuralPropertiesForType();
+        System.out.println(descriptorList.toString());
+        System.out.println(descriptorList.size());
+
+        final int Ntype = ast.getNodeType();
+        String ClassName = ast.nodeClassForType(Ntype).getName().substring(25);
+        System.out.println(ClassName);
 
 
-        for(int i=0;i<actual.size();i++){
-            if (actual.get(i).getClass().getSimpleName().equals("PackageDeclaration")){
-                ASTNode node = actual.get(i);
-                System.out.println(node.toString());
-                System.out.println(node.getParent().getClass().toString());
 
 
-            }
 
-            if (actual.get(i).getClass().getSimpleName().equals("TypeDeclaration")){
-                ASTNode astNode = actual.get(i);
-//                System.out.println(astNode.getStartPosition());
-//                System.out.println(actual.get(i));
-            }
-//            System.out.println(actual.get(i));
-//            System.out.println("********");
-//            System.out.println(actual.get(i).getClass());
-//            System.out.println("=======");
-//            System.out.println("=======");
-//            System.out.println("=======");
-
-        }
-//        System.out.println(actual);
-//		Statement first = statements.get(0);
-//		VariableDeclarationStatement invocation = (VariableDeclarationStatement)first;
+//        for(int i=0;i<actual.size();i++){
+//            ASTNode ast = actual.get(i);
+//            List<StructuralPropertyDescriptor> descriptorList = ast.structuralPropertiesForType();
+//            System.out.println(descriptorList.toString());
+//            System.out.println(descriptorList.size());
+//
+//            final int Ntype = ast.getNodeType();
+//            String ClassName = ast.nodeClassForType(Ntype).getName().substring(25);
+//            System.out.println(ClassName);
+//
+//
+////            if (actual.get(i).getClass().getSimpleName().equals("PackageDeclaration")){
+////                ASTNode node = actual.get(i);
+////                System.out.println(node.toString());
+////                System.out.println(node.getParent().getClass().toString());
+////
+////            }
+//        }
 
     }
 
