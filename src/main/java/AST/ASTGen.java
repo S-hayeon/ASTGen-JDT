@@ -9,6 +9,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ASTGen {
 
@@ -16,9 +17,7 @@ public class ASTGen {
         String filePath = "./src/main/resources/demo.java";
         char[] javaCode = getSourceCode(filePath);
         CompilationUnit compilationUnit = getCompilationUnit(javaCode);
-
         ASTNode root = compilationUnit.getRoot();
-
         visitTree(root);
 
 
@@ -26,6 +25,7 @@ public class ASTGen {
     private static ArrayList<ASTNode> getChildren(ASTNode node) {
         ArrayList<ASTNode> children = new ArrayList<ASTNode>();
         List<Object> list = node.structuralPropertiesForType();
+
         for (int i = 0; i < list.size(); i++) {
             StructuralPropertyDescriptor curr = (StructuralPropertyDescriptor) list.get(i);
             Object child = node.getStructuralProperty(curr);
@@ -33,6 +33,7 @@ public class ASTGen {
                 children.addAll((Collection<? extends ASTNode>) child);
             } else if (child instanceof ASTNode) {
                 children.add((ASTNode) child);
+            } else{
             }
         }
         return children;
@@ -41,19 +42,18 @@ public class ASTGen {
 
     private static void visitNode(ASTNode node) {
         ArrayList<ASTNode> children = getChildren(node);
+        System.out.println(node.getClass().toString());
         String nodeType = ASTNode.nodeClassForType(node.getNodeType()).getSimpleName();
+
+        System.out.println("##########");
+        System.out.println(nodeType);
         if (children.size() > 0) {
             for (ASTNode child : children) {
                 visitNode(child);
             }
-            System.out.println(nodeType);
             System.out.println();
         } else {
-
-//            System.out.println(node.getStartPosition());
-            System.out.println(node.getLocationInParent());
             System.out.println(node.toString());
-            System.out.println();
         }
     }
 

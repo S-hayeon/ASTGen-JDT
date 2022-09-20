@@ -10,6 +10,8 @@ public class HelloWolrd {
             return 1;
         } else if (a =="abcd"){
             return 1;
+        }else if ((temp < 110) && (a == "qwer" && 1==1)){
+            return 1;
         }
         return 0;
     }
