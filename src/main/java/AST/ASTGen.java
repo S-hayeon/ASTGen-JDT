@@ -1,21 +1,13 @@
 package AST;
 
-
-
-import AST.JDT.ASTStream;
-import AST.JDT.Serializer.CompilationUnitSerializer;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.eclipse.jdt.core.dom.*;
 
 //
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ASTGen {
 
@@ -24,43 +16,51 @@ public class ASTGen {
         char[] javaCode = getSourceCode(filePath);
         CompilationUnit compilationUnit = getCompilationUnit(javaCode);
 
-        List<ASTNode> actual = ASTStream.stream(compilationUnit.getRoot())
-        .collect(Collectors.toList());
-        ASTNode ast = compilationUnit.getRoot();
-        List<StructuralPropertyDescriptor> descriptorList = ast.structuralPropertiesForType();
-        System.out.println(descriptorList.toString());
-        System.out.println(descriptorList.size());
+        ASTNode root = compilationUnit.getRoot();
 
-        final int Ntype = ast.getNodeType();
-        String ClassName = ast.nodeClassForType(Ntype).getName().substring(25);
-        System.out.println(ClassName);
+        String x = visitTree(root);
+        System.out.println(x);
 
 
-
-
-
-//        for(int i=0;i<actual.size();i++){
-//            ASTNode ast = actual.get(i);
-//            List<StructuralPropertyDescriptor> descriptorList = ast.structuralPropertiesForType();
-//            System.out.println(descriptorList.toString());
-//            System.out.println(descriptorList.size());
-//
-//            final int Ntype = ast.getNodeType();
-//            String ClassName = ast.nodeClassForType(Ntype).getName().substring(25);
-//            System.out.println(ClassName);
-//
-//
-////            if (actual.get(i).getClass().getSimpleName().equals("PackageDeclaration")){
-////                ASTNode node = actual.get(i);
-////                System.out.println(node.toString());
-////                System.out.println(node.getParent().getClass().toString());
-////
-////            }
-//        }
 
     }
+    private static ArrayList<ASTNode> getChildren(ASTNode node) {
+        ArrayList<ASTNode> nodeList = new ArrayList<ASTNode>();
+        List<Object> list = node.structuralPropertiesForType();
+        for (int i = 0; i < list.size(); i++) {
+            StructuralPropertyDescriptor curr = (StructuralPropertyDescriptor) list.get(i);
+            Object child = node.getStructuralProperty(curr);
+            if (child instanceof List) {
+                nodeList.addAll((Collection<? extends ASTNode>) child);
+            } else if (child instanceof ASTNode) {
+                nodeList.add((ASTNode) child);
+            } else {
+            }
+        }
+        return nodeList;
+    }
 
+    private static void visitNode(StringBuffer result, String indent, ASTNode node) {
+        ArrayList<ASTNode> children = getChildren(node);
+        String nodeType = ASTNode.nodeClassForType(node.getNodeType()).getSimpleName();
+        if (children.size() > 0) {
+            result.append(indent + "<" + nodeType + ">\n");
+            for (ASTNode child : children) {
+                visitNode(result, indent + "   ", child);
+            }
+            result.append(indent + "</" + nodeType + ">\n");
+        } else {
+            result.append(indent + "<" + nodeType + ">");
+            result.append(node.toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"));
+            result.append("</" + nodeType + ">\n");
+        }
+    }
 
+    protected static String visitTree(ASTNode root) {
+        StringBuffer result = new StringBuffer("");
+        visitNode(result, "", root);
+        return result.toString();
+    }
 
     private static CompilationUnit getCompilationUnit(char[] javaCode) {
         ASTParser astParser = ASTParser.newParser(AST.JLS11);
