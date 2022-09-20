@@ -17,8 +17,6 @@ dependencies {
 
     // https://mvnrepository.com/artifact/io.gsonfire/gson-fire
     implementation group: 'io.gsonfire', name: 'gson-fire', version: '1.0.1'
-    // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.0.1'
 
 
 

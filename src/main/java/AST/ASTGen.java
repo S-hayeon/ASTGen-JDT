@@ -1,5 +1,6 @@
 package AST;
 
+import com.google.gson.Gson;
 import org.eclipse.jdt.core.dom.*;
 
 //
@@ -18,49 +19,49 @@ public class ASTGen {
 
         ASTNode root = compilationUnit.getRoot();
 
-        String x = visitTree(root);
-        System.out.println(x);
-
+        visitTree(root);
 
 
     }
     private static ArrayList<ASTNode> getChildren(ASTNode node) {
-        ArrayList<ASTNode> nodeList = new ArrayList<ASTNode>();
+        ArrayList<ASTNode> children = new ArrayList<ASTNode>();
         List<Object> list = node.structuralPropertiesForType();
         for (int i = 0; i < list.size(); i++) {
             StructuralPropertyDescriptor curr = (StructuralPropertyDescriptor) list.get(i);
             Object child = node.getStructuralProperty(curr);
             if (child instanceof List) {
-                nodeList.addAll((Collection<? extends ASTNode>) child);
+                children.addAll((Collection<? extends ASTNode>) child);
             } else if (child instanceof ASTNode) {
-                nodeList.add((ASTNode) child);
-            } else {
+                children.add((ASTNode) child);
             }
         }
-        return nodeList;
+        return children;
     }
 
-    private static void visitNode(StringBuffer result, String indent, ASTNode node) {
+
+    private static void visitNode(ASTNode node) {
         ArrayList<ASTNode> children = getChildren(node);
         String nodeType = ASTNode.nodeClassForType(node.getNodeType()).getSimpleName();
         if (children.size() > 0) {
-            result.append(indent + "<" + nodeType + ">\n");
             for (ASTNode child : children) {
-                visitNode(result, indent + "   ", child);
+                visitNode(child);
             }
-            result.append(indent + "</" + nodeType + ">\n");
+            System.out.println(nodeType);
+            System.out.println();
         } else {
-            result.append(indent + "<" + nodeType + ">");
-            result.append(node.toString().replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"));
-            result.append("</" + nodeType + ">\n");
+
+//            System.out.println(node.getStartPosition());
+            System.out.println(node.getLocationInParent());
+            System.out.println(node.toString());
+            System.out.println();
         }
     }
 
-    protected static String visitTree(ASTNode root) {
-        StringBuffer result = new StringBuffer("");
-        visitNode(result, "", root);
-        return result.toString();
+    private static void visitTree(ASTNode root) {
+        visitNode(root);
+
     }
+
 
     private static CompilationUnit getCompilationUnit(char[] javaCode) {
         ASTParser astParser = ASTParser.newParser(AST.JLS11);
